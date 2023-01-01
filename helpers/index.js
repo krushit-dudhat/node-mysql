@@ -24,7 +24,11 @@ const generateJWTtoken = (object, secretKey = envConst.SECRET, expiry) => jwt.si
 
 const encryptPassword = (password) => crypto.createHash('md5').update(password).digest('hex');
 
-const comparePassword = (password, hash) => encryptPassword(password) === hash;
+const comparePassword = (password, hash) => {
+  console.log("goty hash",hash);
+  console.log(encryptPassword(password))
+  return encryptPassword(password) === hash;
+}
 
 module.exports = {
   encryptPassword,

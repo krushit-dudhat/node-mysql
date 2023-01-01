@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const cancelUpdateForm = () => {
+        console.log("cancel");
+        window.location.href = "/dashboard";
+      };
+    </script>
+    <style>
+      body {
+        height: 100%;
+      }
+    </style>
+
+    <title>Market place</title>
+  </head>
+  <body>
+    <nav class="navbar bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand">Navbar</a>
+        <form id="logoutForm">
+          <button
+            class="btn btn-outline-danger"
+            onclick="logout()"
+            type="submit"
+          >
+            Logout
+          </button>
+        </form>
+      </div>
+    </nav>
+
+    <div class="h-100 d-flex align-items-center justify-content-center">
+      <div class="m-2 p-4 border">
+        <h1 class="text-center">product form</h1>
+
+        <form method="POST" action="/product" id="productUpdate">
+          <div class="mb-3">
+            <label for="username" class="form-label">name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              aria-describedby="emailHelp"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">description</label>
+            <input
+              type="text"
+              class="form-control"
+              name="description"
+              id="description"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="productImage" class="form-label">new image</label>
+            <input
+              type="file"
+              class="form-control"
+              name="productImage"
+              id="productImage"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="price" class="form-label">price</label>
+            <input type="number" class="form-control" name="price" id="price" />
+          </div>
+          <div class="mb-3">
+            <label for="provider" class="form-label">provider</label>
+            <select
+              class="form-select"
+              aria-label="Default select example"
+              name="provider"
+              id="provider"
+            >
+              <option value="" disabled>Select provider</option>
+            </select>
+          </div>
+          <button
+            type="cancel"
+            class="btn btn-danger"
+            onclick="cancelUpdateForm()"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous"
+    ></script>
+    <script src="/public/js/logout.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/additional-methods.min.js"></script>
+    <script>
+      const fetchProvider = (value) => {
+        $.ajax({
+          type: "GET",
+          url: "/providers",
+          success: ({ data }) => {
+            const { providers } = data;
+            providers.forEach((provider) => {
+              if (value === provider.name) {
+                $("#provider").append(
+                  `<option value="${provider.id}" selected>${provider.name}</option>`
+                );
+              } else {
+                $("#provider").append(
+                  `<option value="${provider.id}">${provider.name}</option>`
+                );
+              }
+            });
+          },
+          error: (error) => {
+            console.log(error);
+          },
+        });
+      };
+      const fillForm = () => {
+        $.ajax({
+          type: "GET",
+          url: `/product/${window.location.pathname.split("/")[2]}`,
+          success: ({ data }) => {
+            const { name, description, price, provider, image } = data.product;
+            $("#name").val(name);
+            $("#description").val(description);
+            $("#price").val(price);
+            fetchProvider(provider);
+          },
+          error: (error) => {
+            console.log(error);
+          },
+        });
+      };
+      fillForm();
+    </script>
+    <script>
+      $(document).ready(() => {
+        $("#productUpdate").on("submit", (event) => {
+          event.preventDefault();
+        });
+        const cancelUpdateForm = () => {
+          window.location.href = "/deshboard";
+        };
+
+        $("#productUpdate").validate({
+          rules: {
+            name: {
+              required: true,
+            },
+            price: {
+              required: true,
+            },
+            provider: {
+              required: true,
+            },
+          },
+          messages: {
+            name: {
+              required: "name is required",
+            },
+            price: {
+              required: "price is required",
+            },
+            provider: {
+              required: "provider is required",
+            },
+          },
+          errorElement: "span",
+          errorClass: "text-danger",
+          errorPlacement: function (error, element) {
+            error.insertAfter(element);
+          },
+          submitHandler: function (form) {
+            const formData = new FormData($("#productUpdate")[0]);
+            console.log(formData);
+            $.ajax({
+              type: "PUT",
+              url: `/product/${window.location.pathname.split("/")[2]}`,
+              data: formData,
+              contentType: false,
+              processData: false,
+              success: ({ data }) => {
+                $("#error").text("");
+                window.location.href = "/dashboard";
+              },
+              error: (error) => {
+                $("#error").text(error.responseJSON.errorMessage);
+              },
+            });
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
