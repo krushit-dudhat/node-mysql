@@ -47,6 +47,7 @@
             type="submit"
           >
             get excel
+            <a id="downloadExcel"> </a>
           </button>
           <button
             class="btn btn-outline-primary me-2"
@@ -56,7 +57,11 @@
             add Product
           </button>
           <li class="page-item disabled">
-            <button class="page-link btn btn-outline-primary" id="prev-page" onclick="prevPage()">
+            <button
+              class="page-link btn btn-outline-primary"
+              id="prev-page"
+              onclick="prevPage()"
+            >
               Previous
             </button>
           </li>
@@ -64,7 +69,11 @@
             <button id="pageNo" class="page-link">1</button>
           </li>
           <li class="page-item">
-            <button class="page-link btn btn-outline-primary" id="next-page" onclick="nextPage()">
+            <button
+              class="page-link btn btn-outline-primary"
+              id="next-page"
+              onclick="nextPage()"
+            >
               Next
             </button>
           </li>
@@ -196,6 +205,54 @@
             console.log(err);
           },
         });
+      };
+
+      function generateExcel() {
+        $.ajax({
+          url: `http://localhost:4000/products/excel`,
+          method: "GET",
+          xhrFileds: { responseType: "arraybuffer" },
+          success: (data) => {
+            console.log(data);
+            const blob = new Blob([data], { type: "application/vnd.ms-excel" });
+            const elem = window.document.createElement("a");
+            elem.href = window.URL.createObjectURL(blob);
+            elem.download = "products.xlsx";
+            elem.click();
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
+
+        const url = `http://localhost:4000/products/excel`;
+        const request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded; charset=UTF-8"
+        );
+        request.responseType = "blob";
+
+        request.onload = function (e) {
+          if (this.status === 200) {
+            var blob = this.response;
+            if (window.navigator.msSaveOrOpenBlob) {
+              window.navigator.msSaveBlob(blob, 'products.xlsx');
+            } else {
+              var downloadLink = window.document.createElement("a");
+              var contentTypeHeader = request.getResponseHeader("Content-Type");
+              downloadLink.href = window.URL.createObjectURL(
+                new Blob([blob], { type: contentTypeHeader })
+              );
+              downloadLink.download = "products.xlsx";
+              document.body.appendChild(downloadLink);
+              downloadLink.click();
+              document.body.removeChild(downloadLink);
+            }
+          }
+        };
+        request.send();
       };
     </script>
   </body>

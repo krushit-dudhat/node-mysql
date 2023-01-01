@@ -1,6 +1,9 @@
 const db = require('../../connection/db.conn');
 const { v4: uuidv4 } = require('uuid');
+const xl = require('exceljs');
 const { errorResponse , successResponse} = require('../../helpers/index');
+const { writeExcel } = require('../../helpers/excel');
+const path = require('path');
 
 const fetchProducts = async (req, res, next) => {
   try {
@@ -12,6 +15,28 @@ const fetchProducts = async (req, res, next) => {
     return successResponse(req, res, { products }, "product data fetched!",200);
   } catch (error) {
     console.log(error);
+    return next(error);
+  }
+}
+
+
+const fetchExcel = async (req, res, next) => {
+  try {
+    const data = await db.queryExec(`SELECT p.*, u.name as provider FROM provider_product p INNER JOIN provider u ON p.provider_id = u.id`);
+    const workbook = new xl.Workbook();
+    const sheet = workbook.addWorksheet('product sheet');
+    writeExcel(data.results, sheet);
+
+    // const stream = await xl(products, path.join(__dirname,'/products_123.xlsx'));
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=products.xlsx');
+    // workbook.xlsx.writeFile('my-excel-file.xlsx').then(function () {
+    //   console.log('File saved.');
+    // });
+    workbook.xlsx.write(res).then(function () {
+      res.end();
+    });
+  } catch (error) {
     return next(error);
   }
 }
@@ -118,4 +143,5 @@ module.exports = {
   updateProduct,
   addProductView,
   deleteProduct,
+  fetchExcel,
 };

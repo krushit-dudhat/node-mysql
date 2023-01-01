@@ -1,6 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const { fetchProducts, fetchProductById, productView, addProduct, updateProduct, addProductView, deleteProduct } = require('../controller/product/product.controller');
+const { fetchProducts, fetchProductById, productView, addProduct, updateProduct, addProductView, deleteProduct, fetchExcel } = require('../controller/product/product.controller');
 const { authorization } = require('../middleware/auth');
 const router = express.Router();
 const fs = require('fs');
@@ -38,6 +38,7 @@ const upload = multer({
 
 router.get('/products', authorization, fetchProducts);
 router.get('/product/:id/edit', authorization, productView);
+router.get('/products/excel', authorization, fetchExcel);
 router.get('/product/add', authorization, addProductView);
 router.get('/product/:id', authorization, fetchProductById);
 router.post('/product', authorization, upload.single('productImage'), addProduct);

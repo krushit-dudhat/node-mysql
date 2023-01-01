@@ -16,7 +16,6 @@ const authorization = async (req, res, next) => {
     if (!decoded) {
       return errorResponse(req, res, 'Invalid token', 401);
     }
-    console.log(decoded);
 
     let user;
     try {
@@ -30,7 +29,6 @@ const authorization = async (req, res, next) => {
     if (!user) {
       return errorResponse(req, res, 'User not found', 404);
     }
-    console.log(user);
     if (user.token !== token) {
       return errorResponse(req, res, 'Invalid token', 401);
     }
