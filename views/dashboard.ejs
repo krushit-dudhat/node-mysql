@@ -32,20 +32,41 @@
           />
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
-          <button class="btn btn-outline-danger" onclick="logout()" type="submit">Logout</button>
+        <button class="btn btn-outline-danger" onclick="logout()" type="submit">
+          Logout
+        </button>
       </div>
     </nav>
 
     <div class="m-4">
       <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-end">
-          <button class="btn btn-outline-primary me-2" onclick="goToAddProductPage()" type="submit">add Product</button>
+          <button
+            class="btn btn-outline-primary me-2"
+            onclick="generateExcel()"
+            type="submit"
+          >
+            get excel
+          </button>
+          <button
+            class="btn btn-outline-primary me-2"
+            onclick="goToAddProductPage()"
+            type="submit"
+          >
+            add Product
+          </button>
           <li class="page-item disabled">
-            <button class="page-link" id="prev-page" onclick="prevPage()">Previous</button>
+            <button class="page-link btn btn-outline-primary" id="prev-page" onclick="prevPage()">
+              Previous
+            </button>
           </li>
-          <li class="page-item active"><button id="pageNo" class="page-link">1</button></li>
+          <li class="page-item active">
+            <button id="pageNo" class="page-link">1</button>
+          </li>
           <li class="page-item">
-            <button class="page-link" id="next-page" onclick="nextPage()">Next</button>
+            <button class="page-link btn btn-outline-primary" id="next-page" onclick="nextPage()">
+              Next
+            </button>
           </li>
         </ul>
       </nav>
@@ -82,7 +103,6 @@
       </div>
     </div>
 
-
     <script
       src="https://code.jquery.com/jquery-3.6.3.min.js"
       integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
@@ -98,19 +118,19 @@
         const pageNo = $("#pageNo").text();
         const nextPageNo = parseInt(pageNo) + 1;
         productFiller(nextPageNo);
-        
+
         console.log(nextPageNo);
         if (nextPageNo > 1) {
           $("#prev-page").parent(".page-item").removeClass("disabled");
         }
-        $('#pageNo').text(nextPageNo);
+        $("#pageNo").text(nextPageNo);
       };
 
       const prevPage = () => {
         const pageNo = $("#pageNo").text();
         const prevPageNo = parseInt(pageNo) - 1;
         productFiller(prevPageNo);
-        if  (prevPageNo == 1) {
+        if (prevPageNo == 1) {
           $("#prev-page").parent(".page-item").addClass("disabled");
         }
         $("#pageNo").text(prevPageNo);
@@ -128,7 +148,6 @@
           success: (data) => {
             const { products } = data.data;
             products.forEach((product) => {
-              console.log(product);
               $("#product-container").append(`
                 <div class="col mt-2" id="product-container">
                   <!-- product card -->
@@ -161,12 +180,22 @@
         });
       };
       productFiller();
+
       const updateProduct = (id) => {
         console.log(id);
         window.location.href = `http://localhost:4000/product/${id}/edit`;
       };
-      const deleteProduct = () => {
-        console.log("delete");
+      const deleteProduct = (id) => {
+        $.ajax({
+          url: `http://localhost:4000/product/${id}`,
+          method: "DELETE",
+          success: () => {
+            productFiller();
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
       };
     </script>
   </body>

@@ -82,6 +82,16 @@ const updateProduct = async (req, res, next) => {
   }
 }
 
+const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.queryExec(`DELETE FROM provider_product WHERE id = "${id}"`);
+    return successResponse(req, res, {}, "Product deleted!", 200);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 const productView = async (req, res, next) => {
   try {
     return res.render('updateProduct', {
@@ -107,4 +117,5 @@ module.exports = {
   addProduct,
   updateProduct,
   addProductView,
+  deleteProduct,
 };
