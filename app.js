@@ -12,9 +12,9 @@ const app = express();
 (async () => {
   await db.connect();
   if (envConst.NODE_ENV === 'development') {
-    // await db.dropTable();
+    await db.dropTable();
     await db.createTable();
-    // await db.seedTable();
+    await db.seedTable();
   } else {
     await db.createTable();
   }

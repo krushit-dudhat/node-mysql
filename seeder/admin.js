@@ -14,6 +14,9 @@ exports.seedAdminTable = async () => {
         created_at: new Date().toISOString().substring(0, 19).replace('T', ' '),
         updated_at: new Date().toISOString().substring(0, 19).replace('T', ' '),
       };
+      if (i === 0) {
+        admin.username = 'admin';
+      }
       values += `("${admin.id}", "${admin.username}", "${admin.password}", "${admin.created_at}", "${admin.updated_at}"),`;
     }
     const query = `INSERT INTO admin (id, username, password, created_at, updated_at) VALUES ${values.slice(0, -1)}`;
