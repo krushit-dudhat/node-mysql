@@ -156,12 +156,23 @@
           method: "GET",
           success: (data) => {
             const { products } = data.data;
+            if (products.length === 0) {
+              $("#product-container").append(`
+              <p> nothing to show. </p>`);
+              $("#next-page").parent(".page-item").addClass("disabled");
+            } else {
+              $("#next-page").parent(".page-item").removeClass("disabled");
+            }
             products.forEach((product) => {
+              let image = product.image;
+              if (navigator.userAgent.indexOf("Win")) {
+                image = image.replace(/\\/g, "/");
+              }
               $("#product-container").append(`
                 <div class="col mt-2" id="product-container">
                   <!-- product card -->
                   <div class="card" style="width: 18rem">
-                    <img src="${product.image}" class="card-img-top" alt="..." />
+                    <img src="${image}" class="card-img-top" alt="..." />
                     <div class="card-body">
                       <h5 class="card-title">${product.name}</h5>
                       <p class="card-text">
@@ -239,7 +250,7 @@
           if (this.status === 200) {
             var blob = this.response;
             if (window.navigator.msSaveOrOpenBlob) {
-              window.navigator.msSaveBlob(blob, 'products.xlsx');
+              window.navigator.msSaveBlob(blob, "products.xlsx");
             } else {
               var downloadLink = window.document.createElement("a");
               var contentTypeHeader = request.getResponseHeader("Content-Type");
@@ -254,7 +265,7 @@
           }
         };
         request.send();
-      };
+      }
     </script>
   </body>
 </html>
