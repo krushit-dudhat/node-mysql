@@ -27,6 +27,7 @@
     <div class="h-100 d-flex align-items-center justify-content-center">
       <div class="m-2 p-4 border">
         <h1 class="text-center">Login</h1>
+        <p id="error" class="text-danger"></p>
         <form method="POST" action="/login" id="loginForm">
           <div class="mb-3">
             <label for="username" class="form-label">Username</label>
@@ -107,7 +108,7 @@
                 window.location.href = "/dashboard";
               },
               error: (error) => {
-                $("#error").text(error.responseJSON.errorMessage);
+                $("#error").text(error.responseJSON.message);
               },
             });
           },

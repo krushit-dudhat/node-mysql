@@ -105,7 +105,7 @@ const updateProduct = async (req, res, next) => {
 
     if (req.body.name && req.body.provider) {
       const productNameValidation = await db.queryExec(`SELECT * FROM provider_product WHERE name = "${req.body.name}" AND provider_id = "${req.body.provider}"`);
-      if (productNameValidation.results.length > 0) {
+      if (productNameValidation.results.length > 0 && productNameValidation.results[0].id !== id) {
         return errorResponse(req, res, "Product name already exists", 400);
       }
     }
