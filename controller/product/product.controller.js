@@ -60,9 +60,16 @@ const addProduct = async (req, res, next) => {
     let data = await db.queryExec(`SELECT * FROM provider WHERE id = "${req.body.provider}"`);
     console.log(data);
     if(!data.results[0]) {
-      return errorResponse(req, res, "Provider not found", 404);
+      return errorResponse(req, res, "Provider not found", 400);
     }
-    console.log(req.file);
+
+    if (!req.file) {
+      return errorResponse(req, res, "Image not found", 400);
+    }
+    const productNameValidation = await db.queryExec(`SELECT * FROM provider_product WHERE name = "${name}" AND provider_id = "${provider}"`);
+    if (productNameValidation.results.length > 0) {
+      return errorResponse(req, res, "Product name already exists", 400);
+    }
     data = await db.queryExec(`INSERT INTO provider_product
     (id, provider_id, name, price, description, image, created_at, updated_at)
     VALUES 
@@ -82,7 +89,7 @@ const updateProduct = async (req, res, next) => {
     if (req.body.provider) {
       let data = await db.queryExec(`SELECT * FROM provider WHERE id = "${req.body.provider}"`);
       if (!data.results[0]) {
-        return errorResponse(req, res, "Provider not found", 404);
+        return errorResponse(req, res, "Provider not found", 400);
       }
     }
     let fielsToUpdate = Object.keys(req.body).map((key) => {
@@ -96,8 +103,12 @@ const updateProduct = async (req, res, next) => {
       fielsToUpdate += `, image = "${req.file.path}"`;
     }
 
-    console.log(id);
-    console.log(fielsToUpdate);
+    if (req.body.name && req.body.provider) {
+      const productNameValidation = await db.queryExec(`SELECT * FROM provider_product WHERE name = "${req.body.name}" AND provider_id = "${req.body.provider}"`);
+      if (productNameValidation.results.length > 0) {
+        return errorResponse(req, res, "Product name already exists", 400);
+      }
+    }
     const data = await db.queryExec(`UPDATE provider_product SET ${fielsToUpdate} WHERE id = "${id}"`);
     console.log(data);
     return successResponse(req, res, {}, "Product updated!", 200);

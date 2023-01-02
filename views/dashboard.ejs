@@ -185,6 +185,7 @@
           error: (err) => {
             console.log(err);
             alert(err.responseJSON.message);
+            window.location.href = "http://localhost:4000/login";
           },
         });
       };
@@ -208,22 +209,22 @@
       };
 
       function generateExcel() {
-        $.ajax({
-          url: `http://localhost:4000/products/excel`,
-          method: "GET",
-          xhrFileds: { responseType: "arraybuffer" },
-          success: (data) => {
-            console.log(data);
-            const blob = new Blob([data], { type: "application/vnd.ms-excel" });
-            const elem = window.document.createElement("a");
-            elem.href = window.URL.createObjectURL(blob);
-            elem.download = "products.xlsx";
-            elem.click();
-          },
-          error: (err) => {
-            console.log(err);
-          },
-        });
+        // $.ajax({
+        //   url: `http://localhost:4000/products/excel`,
+        //   method: "GET",
+        //   xhrFileds: { responseType: "arraybuffer" },
+        //   success: (data) => {
+        //     console.log(data);
+        //     const blob = new Blob([data], { type: "application/vnd.ms-excel" });
+        //     const elem = window.document.createElement("a");
+        //     elem.href = window.URL.createObjectURL(blob);
+        //     elem.download = "products.xlsx";
+        //     elem.click();
+        //   },
+        //   error: (err) => {
+        //     console.log(err);
+        //   },
+        // });
 
         const url = `http://localhost:4000/products/excel`;
         const request = new XMLHttpRequest();

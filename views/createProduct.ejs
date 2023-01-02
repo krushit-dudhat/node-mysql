@@ -48,7 +48,7 @@
     <div class="h-100 d-flex align-items-center justify-content-center">
       <div class="m-2 p-4 border">
         <h1 class="text-center">product form</h1>
-
+        <p id="error" class="text-danger"></p>
         <form method="POST" action="/product" id="productAdd">
           <div class="mb-3">
             <label for="username" class="form-label">name</label>
@@ -174,7 +174,16 @@
                 window.location.href = "/dashboard";
               },
               error: (error) => {
-                console.log(error);
+                if (error.status === 401) {
+                  window.location.href = "/login";
+                } else if (error.status === 400) {
+                  $("#error").text(`${error.responseJSON.message}**`);
+                  // alert(error.responseJSON.errorMessage);
+                } else {
+                  console.log(error);
+                  alert(error.responseJSON.message);
+                  window.location.href = "/dashboard";
+                }
               },
             });
           },
