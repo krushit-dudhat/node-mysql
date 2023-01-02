@@ -1,9 +1,8 @@
 const db = require('../../connection/db.conn');
 const { v4: uuidv4 } = require('uuid');
-const xl = require('exceljs');
 const { errorResponse , successResponse} = require('../../helpers/index');
-const { writeExcel } = require('../../helpers/excel');
 const path = require('path');
+const { fork } = require('child_process');
 
 const fetchProducts = async (req, res, next) => {
   try {
@@ -22,20 +21,40 @@ const fetchProducts = async (req, res, next) => {
 
 const fetchExcel = async (req, res, next) => {
   try {
-    const data = await db.queryExec(`SELECT p.*, u.name as provider FROM provider_product p INNER JOIN provider u ON p.provider_id = u.id`);
-    const workbook = new xl.Workbook();
-    const sheet = workbook.addWorksheet('product sheet');
-    writeExcel(data.results, sheet);
+    query = `SELECT p.*, u.name as provider FROM provider_product p INNER JOIN provider u ON p.provider_id = u.id`;
 
-    // const stream = await xl(products, path.join(__dirname,'/products_123.xlsx'));
+    const childProcess = fork(path.join(__dirname,'..', '..', 'helpers' ,'excel.js'));
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=products.xlsx');
+    
+    childProcess.send({query});
+    // const data = await db.queryExec(query);
+    // const workbook = new xl.Workbook();
+    // const sheet = workbook.addWorksheet('product sheet');
+    // writeExcel(data.results, sheet);
+
+    childProcess.on('message', async (bufferData) => {
+      // deserialize buffer
+      const buffer = Buffer.from(bufferData, 'base64');
+      res.end(buffer);
+      // stream.xlsx.write(res).then(function () {
+      //   res.end();
+      // });
+    });
+    childProcess.on('exit', (code) => {
+      console.log(`Child process exited with code ${code}`);
+    });
+    childProcess.on('error', (message) => {
+      return errorResponse(req, res, 'Error while generating excel', 500, message);
+    });
+    // const stream = await xl(products, path.join(__dirname,'/products_123.xlsx'));
+
     // workbook.xlsx.writeFile('my-excel-file.xlsx').then(function () {
     //   console.log('File saved.');
     // });
-    workbook.xlsx.write(res).then(function () {
-      res.end();
-    });
+    // workbook.xlsx.write(res).then(function () {
+    //   res.end();
+    // });
   } catch (error) {
     return next(error);
   }
